@@ -5,8 +5,9 @@ Tkinter-Async-Execute
 Tkinter-Async-Execute is a small library, that provides a way to run an ``asyncio`` event loop alongside Tkinter in
 a separate thread.
 
-It provides a way to execute methods of tkinter widgets inside async functions and ability to submit async functions
-from tkinter callback functions. Both of these are thread-safe.
+It provides a way to execute methods of tkinter widgets from inside async functions and ability to call async functions
+from functions (commands / events) running in tkinter's thread. The former can be called from any thread (or async function)
+and the latter only from functions (commands / events) in tkinter's thread.
 
 To show progress of an async function, submitted from tkinter, an async execution window widget is available,
 which will display any text printed with the ``print()`` function (or any stdout write requests).
