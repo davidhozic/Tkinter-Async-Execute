@@ -128,10 +128,12 @@ class ExecutingAsyncWindow(tk.Toplevel):
     def destroy(self, future: asyncio.Future = None) -> None:
         if future is not None and (exc := future.exception()) is not None:
             self.after_idle(
-                messagebox.showerror,        
-                "Coroutine error",
-                f"{exc}\n(Error while running coroutine: {self.awaitable.__name__})\nType: {exc.__class__}",
-                self
+                lambda:
+                messagebox.showerror(
+                    "Coroutine error",
+                    f"{exc}\n(Error while running coroutine: {self.awaitable.__name__})\nType: {exc.__class__}",
+                    master=self
+                )
             )
 
         sys.stdout = self.old_stdout

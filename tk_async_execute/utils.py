@@ -28,10 +28,12 @@ SOFTWARE.
 
 from typing import Coroutine, Optional, Callable, Any
 from threading import Thread
+from concurrent.futures import Future as TFuture
 
 import asyncio
 
 from .widget import ExecutingAsyncWindow
+
 
 class GLOBAL:
     async_thread: Thread = None
@@ -72,6 +74,31 @@ def start():
     GLOBAL.async_thread = Thread(target=loop.run_forever)
     ExecutingAsyncWindow.loop = loop
     GLOBAL.async_thread.start()
+
+
+def tk_execute(method: Callable, *args, **kwargs):
+    """
+    Allows thread-safe execution of tkinter methods.
+
+    Parameters
+    -----------
+    method: Callable
+        A **tkinter widget** method.
+        Methods that are not from tkinter widgets,
+        should be called directly without this function.
+    args: Any
+        Positional arguments to pass to ``method``
+    kwargs: Any
+        Keyword arguments to pass to ``method``
+    """
+    widget = method.__self__
+    future = TFuture()
+
+    def safe_execute():
+        future.set_result(method(*args, **kwargs))
+
+    widget.after_idle(safe_execute)
+    return future.result()
 
 
 def async_execute(
