@@ -33,6 +33,7 @@ from concurrent.futures import Future as TFuture
 import asyncio
 
 from .widget import ExecutingAsyncWindow
+from . import doc
 
 
 class GLOBAL:
@@ -40,6 +41,7 @@ class GLOBAL:
     loop: asyncio.AbstractEventLoop = None
 
 
+@doc.doc_category("Control", path="")
 def stop():
     """
     Stops the async queue executor.
@@ -57,6 +59,7 @@ def stop():
     return loop
 
 
+@doc.doc_category("Control", path="")
 def start():
     """
     Starts the async queue executor.
@@ -76,6 +79,7 @@ def start():
     GLOBAL.async_thread.start()
 
 
+@doc.doc_category("Execution", path="")
 def tk_execute(method: Callable, *args, **kwargs):
     """
     Allows thread-safe execution of tkinter methods.
@@ -101,6 +105,7 @@ def tk_execute(method: Callable, *args, **kwargs):
     return future.result()
 
 
+@doc.doc_category("Execution", path="")
 def async_execute(
     coro: Coroutine,
     wait: bool = True,
