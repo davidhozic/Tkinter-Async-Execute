@@ -36,6 +36,6 @@ jobs:
         with:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
           release_name: ${{ steps.tag_version.outputs.new_tag }}
-          body: "Changelog: https://daf.davidhozic.com/en/v${{github.event.inputs.version-major}}.${{github.event.inputs.version-minor}}.x/changelog.html"
+          body: "Changelog: https://tkinter-async-execute.readthedocs.io/en/v${{github.event.inputs.version-major}}.${{github.event.inputs.version-minor}}.x/changelog.html"
           draft: false
           prerelease: false
