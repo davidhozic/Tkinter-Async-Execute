@@ -37,7 +37,7 @@ This step does not require the use of our library yet.
 Now let's add our async functionality.
 
 .. code-block:: python
-    :emphasize-lines: 4, 5, 15-18, 22, 32, 34
+    :emphasize-lines: 4, 5, 14-17, 21, 31, 33
     
     from tkinter import ttk
     import tkinter as tk
