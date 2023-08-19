@@ -35,10 +35,17 @@ from tkinter import messagebox
 import asyncio
 import sys
 
+from . import doc
 
+
+@doc.doc_category("Widgets", path="")
 class ExecutingAsyncWindow(tk.Toplevel):
     """
     Window that hovers while executing async methods.
+
+    .. note::
+
+        Direct usage of this is not recommended. Use :func:`tk_async_execute.async_execute` instead.
 
     Parameters
     -----------

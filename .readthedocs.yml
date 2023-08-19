@@ -1,0 +1,19 @@
+version: 2
+formats: [
+  "pdf"
+]
+
+sphinx:
+  configuration: docs/source/conf.py
+  fail_on_warning: false
+
+build:
+  os: ubuntu-22.04
+  apt_packages:
+    - inkscape
+  tools:
+    python: "3.8"
+  jobs:
+    pre_build:
+      - pip install .[dev]
+      - python3 ./docs/setup.py --start-dir source
