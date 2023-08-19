@@ -72,3 +72,4 @@ Index
 
     guide/index
     reference/index
+    changelog
