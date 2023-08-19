@@ -38,7 +38,7 @@ import sys
 from . import doc
 
 
-@doc.doc_category("Widgets", path="")
+@doc.doc_category("Widgets")
 class ExecutingAsyncWindow(tk.Toplevel):
     """
     Window that hovers while executing async methods.
@@ -101,10 +101,6 @@ class ExecutingAsyncWindow(tk.Toplevel):
         gauge = ttk.Progressbar(frame_main)
         gauge.start()
         gauge.pack(fill=tk.BOTH)
-
-        self.old_stdout = sys.stdout
-        sys.stdout = self
-
         self.protocol("WM_DELETE_WINDOW", lambda: None)
 
         if not visible:
@@ -116,8 +112,12 @@ class ExecutingAsyncWindow(tk.Toplevel):
         self.awaitable = coro
         self.callback = callback
         self.current_thread = current_thread()
+
+        self.old_stdout = sys.stdout
+        sys.stdout = self
+
         self.future = future = asyncio.run_coroutine_threadsafe(coro, self.loop)
-        future.add_done_callback(self.destroy)
+        future.add_done_callback(lambda fut: self.after_idle(self.destroy, fut))
 
     def flush(self):
         pass
@@ -134,16 +134,14 @@ class ExecutingAsyncWindow(tk.Toplevel):
 
     def destroy(self, future: asyncio.Future = None) -> None:
         if future is not None and (exc := future.exception()) is not None:
-            self.after_idle(
-                lambda:
-                messagebox.showerror(
-                    "Coroutine error",
-                    f"{exc}\n(Error while running coroutine: {self.awaitable.__name__})\nType: {exc.__class__}",
-                    master=self
-                )
+            messagebox.showerror(
+                "Coroutine error",
+                f"{exc}\n(Error while running coroutine: {self.awaitable.__name__})\nType: {exc.__class__}",
+                master=self
             )
 
         sys.stdout = self.old_stdout
+
         if self.callback is not None:
             self.callback()
 

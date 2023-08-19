@@ -41,7 +41,7 @@ class GLOBAL:
     loop: asyncio.AbstractEventLoop = None
 
 
-@doc.doc_category("Control", path="")
+@doc.doc_category("Control")
 def stop():
     """
     Stops the async queue executor.
@@ -59,7 +59,7 @@ def stop():
     return loop
 
 
-@doc.doc_category("Control", path="")
+@doc.doc_category("Control")
 def start():
     """
     Starts the async queue executor.
@@ -79,7 +79,7 @@ def start():
     GLOBAL.async_thread.start()
 
 
-@doc.doc_category("Execution", path="")
+@doc.doc_category("Execution")
 def tk_execute(method: Callable, *args, **kwargs):
     """
     Allows thread-safe execution of tkinter methods.
@@ -105,7 +105,7 @@ def tk_execute(method: Callable, *args, **kwargs):
     return future.result()
 
 
-@doc.doc_category("Execution", path="")
+@doc.doc_category("Execution")
 def async_execute(
     coro: Coroutine,
     wait: bool = True,
@@ -126,6 +126,11 @@ def async_execute(
     wait: Optional[bool]
         Wait until the execution of ``coro`` has completed, before returning from this function.
         Defaults to True.
+
+        **WARNING** If multiple executions are happening at once, due to the way tkinter's event loop works, this will
+        wait for all executions to finish before returning from this function in the LIFO manner
+        (last execution will be exited first).
+
     visible: Optional[bool]
         Show the execution progress through a new window.
         Defaults to True.
@@ -147,5 +152,4 @@ def async_execute(
     if wait:
         window.wait_window()
 
-    window.update()
     return window

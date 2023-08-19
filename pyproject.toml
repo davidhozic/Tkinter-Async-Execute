@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "tk-async-execute"
+name = "tkinter-async-execute"
 authors = [
     {name = "David Hozic"}
 ]
