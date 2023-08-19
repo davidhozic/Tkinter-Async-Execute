@@ -19,6 +19,10 @@ Installation
 
     pip install tkinter-async-execute
 
+Documentation
+=============
+All documentation is available on https://tkinter-async-execute.readthedocs.io/en/latest/.
+
 
 Example
 =============
