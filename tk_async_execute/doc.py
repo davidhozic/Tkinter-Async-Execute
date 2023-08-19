@@ -19,6 +19,7 @@ def doc_category(
     cat: str,
     manual: Optional[bool] = False,
     path: Optional[str] = None,
+    members: bool = True,
     api_type: Literal["Program", "HTTP"] = "Program"
 ):
     """
@@ -35,13 +36,15 @@ def doc_category(
         Should be used when dealing with overloads.
     path: Optional[str]
         Custom path to the object.
+    members: Optional[bool]
+        If True, documented members will be shown. This includes inherited members.
     api_type: Literal["Program", "HTTP"]
         The type of API, the documented item belongs to.
         Defaults to 'Program'
     """
     def _category(item):  # item == class or function
         if DOCUMENTATION_MODE:
-            cat_map[api_type][cat].append((item, manual, path))
+            cat_map[api_type][cat].append((item, manual, path, members))
         return item
 
     if DOCUMENTATION_MODE:
