@@ -34,6 +34,11 @@ Glossary
 Releases
 ---------------------
 
+v1.0.1
+=================
+- Fix event loop problems on Python before 3.10 due to semaphores (etc.) calling ``get_event_loop`` inside.
+
+
 v1.0.0
 =================
 - Initial release

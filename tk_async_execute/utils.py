@@ -31,6 +31,7 @@ from threading import Thread
 from concurrent.futures import Future as TFuture
 
 import asyncio
+import sys
 
 from .widget import ExecutingAsyncWindow
 from . import doc
@@ -54,6 +55,7 @@ def stop():
     loop = GLOBAL.loop
     loop.call_soon_threadsafe(loop.stop)
     GLOBAL.async_thread.join()
+    asyncio.set_event_loop(None)
     loop.close()
     ExecutingAsyncWindow.loop = None
     return loop
@@ -72,7 +74,14 @@ def start():
     if GLOBAL.async_thread is not None and GLOBAL.async_thread.is_alive():
         raise RuntimeError("Event loop already started. Stop it with ``tk_async_execute.stop()`` first")
 
-    loop = asyncio.new_event_loop()
+    # Semaphores, etc on version prior to 3.10, call get_event_loop inside, which will cause
+    # exceptions if new_event_loop is created and started.
+    if sys.version_info.minor < 10:
+        loop = asyncio.get_event_loop()
+    else:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
     GLOBAL.loop = loop
     GLOBAL.async_thread = Thread(target=loop.run_forever)
     ExecutingAsyncWindow.loop = loop
