@@ -117,7 +117,7 @@ class ExecutingAsyncWindow(tk.Toplevel):
         sys.stdout = self
 
         self.future = future = asyncio.run_coroutine_threadsafe(coro, self.loop)
-        future.add_done_callback(lambda fut: self.after_idle(self.destroy, fut))
+        future.add_done_callback(lambda fut: self.after_idle(self.destroy))
 
     def flush(self):
         pass
@@ -132,14 +132,7 @@ class ExecutingAsyncWindow(tk.Toplevel):
         
         self.old_stdout.write(text)
 
-    def destroy(self, future: asyncio.Future = None) -> None:
-        if future is not None and (exc := future.exception()) is not None:
-            messagebox.showerror(
-                "Coroutine error",
-                f"{exc}\n(Error while running coroutine: {self.awaitable.__name__})\nType: {exc.__class__}",
-                master=self
-            )
-
+    def destroy(self) -> None:
         sys.stdout = self.old_stdout
 
         if self.callback is not None:

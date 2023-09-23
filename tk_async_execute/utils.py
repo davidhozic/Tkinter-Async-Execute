@@ -156,9 +156,16 @@ def async_execute(
     -----------
     ExecutingAsyncWindow
         The progress TopLevel window responsible for ``coro`` execution.
+
+    Raises
+    --------
+    Exception
+        Exception that occurred in ``coro`` (if it ocurred). Only raised if ``wait`` is True.
     """
     window = ExecutingAsyncWindow(coro, visible, pop_up, callback, master=master)
     if wait:
         window.wait_window()
+        if (exc := window.future.exception()) is not None:
+            raise exc
 
     return window
