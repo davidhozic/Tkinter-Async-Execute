@@ -33,6 +33,11 @@ Glossary
 ---------------------
 Releases
 ---------------------
+v1.2.0
+- Added ``show_exceptions`` parameter to :func:`~tk_async_execute.utils.async_execute()` and
+  :class:`~tk_async_execute.widget.ExecutingAsyncWindow`.
+- Added :py:attr:`~tk_async_execute.widget.ExecutingAsyncWindow.future`
+
 
 v1.0.1
 =================
