@@ -34,6 +34,7 @@ Glossary
 Releases
 ---------------------
 v1.2.0
+===========
 - Added ``show_exceptions`` parameter to :func:`~tk_async_execute.utils.async_execute()` and
   :class:`~tk_async_execute.widget.ExecutingAsyncWindow`.
 - Added :py:attr:`~tk_async_execute.widget.ExecutingAsyncWindow.future`
@@ -41,8 +42,8 @@ v1.2.0
 
 v1.1.0
 =================
-- Instead of showing a coroutine error on screen if it ocurred while running a coroutine with
-  :func:`~tk_async_execute.utils.async_execute()`, raise the exception instead in :func:`tk_async_execute.async_execute()`.
+- Instead of showing a coroutine exception on screen when using
+  :func:`~tk_async_execute.utils.async_execute()`, raise the exception.
 
 v1.0.1
 =================
