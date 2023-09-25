@@ -170,7 +170,5 @@ def async_execute(
     window = ExecutingAsyncWindow(coro, visible, pop_up, callback, show_exceptions, **kwargs)
     if wait:
         window.wait_window()
-        if (exc := window.future.exception()) is not None:
-            raise exc
 
     return window
