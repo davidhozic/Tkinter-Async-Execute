@@ -27,6 +27,7 @@ SOFTWARE.
 """
 from typing import Coroutine, Callable, Optional
 from threading import current_thread
+from concurrent.futures import Future
 
 from tkinter import ttk
 import tkinter as tk
@@ -38,10 +39,15 @@ import sys
 from . import doc
 
 
-@doc.doc_category("Widgets", members=False)
+@doc.doc_category("Widgets", members=True)
 class ExecutingAsyncWindow(tk.Toplevel):
     """
     Window that hovers while executing async methods.
+
+    .. versionchanged:: v1.2
+
+        - Removed ``*args`` parameter.
+        - Added ``show_exceptions`` parameter.
 
     .. note::
 
@@ -59,9 +65,11 @@ class ExecutingAsyncWindow(tk.Toplevel):
         Defaults to False.
     callback: Optional[Callable]
         Callback function to call with result afer coro has finished.
-        Defaults to None.
-    args: Any
-        Other positional arguments passed to :class:`tkinter.Toplevel`
+        Defaults to None
+    show_exceptions: Optional[bool]
+        If True, any exceptions that ocurred in ``coro`` will be display though a message box on screen.
+        If you want to obtain the exception though code, you can do so, by awaiting ``await Window.future`` and then
+        read the exception with Window.future.exception() function.
     kwargs: Any
         Other keyword arguments passed to :class:`tkinter.Toplevel`
 
@@ -78,14 +86,15 @@ class ExecutingAsyncWindow(tk.Toplevel):
         visible: bool = True,
         pop_up: bool = False,
         callback: Optional[Callable] = None,
-        *args,
+        show_exceptions: bool = True,
         **kwargs
     ):
         loop = self.loop
         if loop is None or not loop.is_running():
             raise RuntimeError("Start the loop first with 'tk_async_execute.start()'")
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
+        self.show_exceptions = show_exceptions
         self.title("Async execution window")
         self.resizable(False, False)
         frame_main = ttk.Frame(self, padding=(10, 10))
@@ -116,8 +125,17 @@ class ExecutingAsyncWindow(tk.Toplevel):
         self.old_stdout = sys.stdout
         sys.stdout = self
 
-        self.future = future = asyncio.run_coroutine_threadsafe(coro, self.loop)
-        future.add_done_callback(lambda fut: self.after_idle(self.destroy))
+        self._future = future = asyncio.run_coroutine_threadsafe(coro, self.loop)
+        future.add_done_callback(lambda fut: self.after_idle(self.destroy, future))
+
+    @property
+    def future(self) -> Future:
+        """
+        Returns concurrent.futures.Future object.
+        This can be used to eg. obtain the coroutine result (``future.result()``)
+        or the exception (``future.exception()``).
+        """
+        return self._future
 
     def flush(self):
         pass
@@ -132,7 +150,17 @@ class ExecutingAsyncWindow(tk.Toplevel):
         
         self.old_stdout.write(text)
 
-    def destroy(self) -> None:
+    def destroy(self, future: asyncio.Future = None) -> None:
+        if future is not None and (exc := future.exception()) is not None and self.show_exceptions:
+            # ttkbootstrap compatibility
+            title = f"{self.awaitable.__name__} error"
+            message = f"{exc}\n\n({type(exc).__name__})"
+            if "ttkbootstrap" in sys.modules:
+                from ttkbootstrap.dialogs.dialogs import Messagebox
+                Messagebox.show_error(message, title, self.master)
+            else:
+                Messagebox = messagebox.showerror(title, message, master=self.master)
+
         sys.stdout = self.old_stdout
 
         if self.callback is not None:

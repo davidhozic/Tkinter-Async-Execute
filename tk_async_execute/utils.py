@@ -121,7 +121,8 @@ def async_execute(
     visible: bool = True,
     pop_up: bool = False,
     callback: Optional[Callable] = None,
-    master: Any = None
+    show_exceptions: bool = True,
+    **kwargs
 ):
     """
     Executes a coroutine inside asyncio event loop.
@@ -149,8 +150,12 @@ def async_execute(
     callback: Optional[Callable]
         Callback function to call with result afer coro has finished.
         Defaults to None.
-    master: Any
-        The parent tkinter widget.
+    show_exception: Optional[bool]
+        If True, any exceptions that ocurred in ``coro`` will be display though a message box on screen.
+        If you want to obtain the exception though code, you can do so by setting parameter ``wait`` of this function
+        to True and then calling ``window.future.exception()``.
+    **kwargs
+        Any tkinter specific parameters to the TopLevel widget.
 
     Returns
     -----------
@@ -162,10 +167,8 @@ def async_execute(
     Exception
         Exception that occurred in ``coro`` (if it ocurred). Only raised if ``wait`` is True.
     """
-    window = ExecutingAsyncWindow(coro, visible, pop_up, callback, master=master)
+    window = ExecutingAsyncWindow(coro, visible, pop_up, callback, show_exceptions, **kwargs)
     if wait:
         window.wait_window()
-        if (exc := window.future.exception()) is not None:
-            raise exc
 
     return window
