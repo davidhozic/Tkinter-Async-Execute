@@ -39,7 +39,7 @@ import sys
 from . import doc
 
 
-@doc.doc_category("Widgets", members=False)
+@doc.doc_category("Widgets", members=True)
 class ExecutingAsyncWindow(tk.Toplevel):
     """
     Window that hovers while executing async methods.
