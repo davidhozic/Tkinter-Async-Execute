@@ -33,6 +33,16 @@ Glossary
 ---------------------
 Releases
 ---------------------
+
+v1.3.0
+==================
+- Added ``message`` parameter to :func:`~tk_async_execute.utils.async_execute()` and
+  :class:`~tk_async_execute.widget.ExecutingAsyncWindow` for displaying a custom message.
+- Added ``show_stdout`` parameter to :func:`~tk_async_execute.utils.async_execute()` and
+  :class:`~tk_async_execute.widget.ExecutingAsyncWindow` for toggling whether to show ``print()``
+  messages inside the window.
+
+
 v1.2.0
 ===========
 - Added ``show_exceptions`` parameter to :func:`~tk_async_execute.utils.async_execute()` and
@@ -44,6 +54,7 @@ v1.1.0
 =================
 - Instead of showing a coroutine exception on screen when using
   :func:`~tk_async_execute.utils.async_execute()`, raise the exception.
+
 
 v1.0.1
 =================

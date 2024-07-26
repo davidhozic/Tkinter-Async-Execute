@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from typing import Coroutine, Callable, Optional
+from typing import Coroutine, Callable, Optional, Union
 from threading import current_thread
 from concurrent.futures import Future
 
@@ -64,12 +64,21 @@ class ExecutingAsyncWindow(tk.Toplevel):
         If True, all other windows will be blocked from interactions, until the execution of ``coro`` is complete.
         Defaults to False.
     callback: Optional[Callable]
-        Callback function to call with result afer coro has finished.
-        Defaults to None
+        Callback function to call with result after coro has finished.
+        Defaults to None.
     show_exceptions: Optional[bool]
         If True, any exceptions that ocurred in ``coro`` will be display though a message box on screen.
         If you want to obtain the exception though code, you can do so, by awaiting ``await Window.future`` and then
         read the exception with Window.future.exception() function.
+    message: Optional[str | Callable[[str], str]]
+        Message to be displayed in the window, when ``visible`` parameter is set to True.
+        When a string (``str``) is provided, it will be displayed as the message.
+        If a callable is provided, it will be called with the function name as a parameter,
+        and it must return a string that will be used as the displayed message.
+    show_stdout: Optional[bool]
+        If True, any write to stdout (e.g., the ``print()`` function) will be displayed in the window when
+        the execution window is shown (``visible=True``).
+        Defaults to True.
     kwargs: Any
         Other keyword arguments passed to :class:`tkinter.Toplevel`
 
@@ -87,6 +96,8 @@ class ExecutingAsyncWindow(tk.Toplevel):
         pop_up: bool = False,
         callback: Optional[Callable] = None,
         show_exceptions: bool = True,
+        message: Optional[Union[str, Callable[[str], str]]] = lambda name: f"Executing {name}",
+        show_stdout: bool = True,
         **kwargs
     ):
         loop = self.loop
@@ -103,10 +114,17 @@ class ExecutingAsyncWindow(tk.Toplevel):
         frame_stdout = ttk.Frame(frame_main)
         frame_stdout.pack(fill=tk.BOTH, expand=True)
         self.status_var = tk.StringVar()
-        ttk.Label(frame_stdout, text="Last status: ").grid(row=0, column=0)
-        ttk.Label(frame_stdout, textvariable=self.status_var).grid(row=0, column=1)
+        self.current_thread = current_thread()
+        self.old_stdout = sys.stdout
+        if show_stdout:
+            sys.stdout = self
+            ttk.Label(frame_stdout, text="Last status: ").grid(row=0, column=0)
+            ttk.Label(frame_stdout, textvariable=self.status_var).grid(row=0, column=1)
 
-        ttk.Label(frame_main, text=f"Executing {coro.__name__}").pack(fill=tk.X)
+        if callable(message):
+            message = message(coro.__name__)
+
+        ttk.Label(frame_main, text=message).pack(fill=tk.X)
         gauge = ttk.Progressbar(frame_main)
         gauge.start()
         gauge.pack(fill=tk.BOTH)
@@ -120,10 +138,6 @@ class ExecutingAsyncWindow(tk.Toplevel):
 
         self.awaitable = coro
         self.callback = callback
-        self.current_thread = current_thread()
-
-        self.old_stdout = sys.stdout
-        sys.stdout = self
 
         self._future = future = asyncio.run_coroutine_threadsafe(coro, self.loop)
         future.add_done_callback(lambda fut: self.after_idle(self.destroy, future))

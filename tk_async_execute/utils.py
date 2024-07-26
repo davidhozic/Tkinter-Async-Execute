@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Coroutine, Optional, Callable, Any
+from typing import Coroutine, Optional, Callable, Union
 from threading import Thread
 from concurrent.futures import Future as TFuture
 
@@ -122,6 +122,8 @@ def async_execute(
     pop_up: bool = False,
     callback: Optional[Callable] = None,
     show_exceptions: bool = True,
+    message: Optional[Union[str, Callable[[str], str]]] = lambda name: f"Executing {name}",
+    show_stdout: bool = True,
     **kwargs
 ):
     """
@@ -154,6 +156,15 @@ def async_execute(
         If True, any exceptions that ocurred in ``coro`` will be display though a message box on screen.
         If you want to obtain the exception though code, you can do so by setting parameter ``wait`` of this function
         to True and then calling ``window.future.exception()``.
+    message: Optional[str | Callable[[str], str]]
+        Message to be displayed in the window, when ``visible`` parameter is set to True.
+        When a string (``str``) is provided, it will be displayed as the message.
+        If a callable is provided, it will be called with the function name as a parameter,
+        and it must return a string that will be used as the displayed message.
+    show_stdout: Optional[bool]
+        If True, any write to stdout (e.g., the ``print()`` function) will be displayed in the window when
+        the execution window is shown (``visible=True``).
+        Defaults to True.
     **kwargs
         Any tkinter specific parameters to the TopLevel widget.
 
@@ -167,7 +178,7 @@ def async_execute(
     Exception
         Exception that occurred in ``coro`` (if it ocurred). Only raised if ``wait`` is True.
     """
-    window = ExecutingAsyncWindow(coro, visible, pop_up, callback, show_exceptions, **kwargs)
+    window = ExecutingAsyncWindow(coro, visible, pop_up, callback, show_exceptions, message, show_stdout, **kwargs)
     if wait:
         window.wait_window()
 
