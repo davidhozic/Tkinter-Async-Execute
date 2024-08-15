@@ -34,6 +34,11 @@ Glossary
 Releases
 ---------------------
 
+v1.3.1
+==================
+- Fixed *_tkinter.TclError: grab failed: window not viewable* error when ``pop_up`` was set to ``True``.
+
+
 v1.3.0
 ==================
 - Added ``message`` parameter to :func:`~tk_async_execute.utils.async_execute()` and

@@ -134,6 +134,7 @@ class ExecutingAsyncWindow(tk.Toplevel):
             self.withdraw()
 
         if pop_up:
+            self.wait_visibility()
             self.grab_set()
 
         self.awaitable = coro
