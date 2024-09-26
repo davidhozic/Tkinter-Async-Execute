@@ -163,7 +163,9 @@ class ExecutingAsyncWindow(tk.Toplevel):
         if text != "\n":
             self.status_var.set(text)
         
-        self.old_stdout.write(text)
+        # Original sys.stdout can be None when using programs such as pyinstaller (with --noconsole option).
+        if self.old_stdout is not None:
+            self.old_stdout.write(text)
 
     def destroy(self, future: asyncio.Future = None) -> None:
         if future is not None and (exc := future.exception()) is not None and self.show_exceptions:
