@@ -34,6 +34,12 @@ Glossary
 Releases
 ---------------------
 
+v1.3.2
+==================
+- Fixed ``AttributeError: 'NoneType' object has no attribute 'write'`` exception when using PyInstaller with
+  ``--noconsole`` option.
+
+
 v1.3.1
 ==================
 - Fixed *_tkinter.TclError: grab failed: window not viewable* error when ``pop_up`` was set to ``True``.
