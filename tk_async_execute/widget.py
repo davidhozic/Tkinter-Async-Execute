@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from typing import Coroutine, Callable, Optional, Union
+from typing import Coroutine, Callable, Optional, Union, Tuple
 from threading import current_thread
 from concurrent.futures import Future
 
@@ -79,6 +79,21 @@ class ExecutingAsyncWindow(tk.Toplevel):
         If True, any write to stdout (e.g., the ``print()`` function) will be displayed in the window when
         the execution window is shown (``visible=True``).
         Defaults to True.
+    window_title: Optional[str]
+        The title of this window. Defaults to "Async execution window".
+    window_resizable: Optional[tuple[bool, bool]]
+        Controls whether the window is resizable. The first component of this tuple represents
+        the resizable-in-width and second resizable-in-height.
+        Defaults to (False, False), meaning the window is not resizable in any direction.
+    stdout_label_prefix: Optional[str],
+        Only has an effect if the `show_stdout` parameter is set to `True`.
+        Each time a message is printed via stdout, the window will show it.
+        This parameter controls the text that is added in front of all messages.
+        Defaults to "Last status: ".
+    show_progress_bar: Opional[bool],
+        Whether to show the progress bar (gauge). Note that this is only a free-running progress bar
+        and it is meant to have a visual effect. It doesn't allow actual progress to be displayed.
+        Defaults to `True`.
     kwargs: Any
         Other keyword arguments passed to :class:`tkinter.Toplevel`
 
@@ -98,6 +113,11 @@ class ExecutingAsyncWindow(tk.Toplevel):
         show_exceptions: bool = True,
         message: Optional[Union[str, Callable[[str], str]]] = lambda name: f"Executing {name}",
         show_stdout: bool = True,
+        # Tkinter-specific parameters
+        window_title: str = "Async execution window",
+        window_resizable: Tuple[bool, bool] = (True, False),
+        stdout_label_prefix: str = "Last status: ",
+        show_progress_bar: bool = True,
         **kwargs
     ):
         loop = self.loop
@@ -106,8 +126,8 @@ class ExecutingAsyncWindow(tk.Toplevel):
 
         super().__init__(**kwargs)
         self.show_exceptions = show_exceptions
-        self.title("Async execution window")
-        self.resizable(False, False)
+        self.title(window_title)
+        self.resizable(*window_resizable)
         frame_main = ttk.Frame(self, padding=(10, 10))
         frame_main.pack(fill=tk.BOTH, expand=True)
 
@@ -118,16 +138,20 @@ class ExecutingAsyncWindow(tk.Toplevel):
         self.old_stdout = sys.stdout
         if show_stdout:
             sys.stdout = self
-            ttk.Label(frame_stdout, text="Last status: ").grid(row=0, column=0)
+            ttk.Label(frame_stdout, text=stdout_label_prefix).grid(row=0, column=0)
             ttk.Label(frame_stdout, textvariable=self.status_var).grid(row=0, column=1)
 
         if callable(message):
             message = message(coro.__name__)
 
         ttk.Label(frame_main, text=message).pack(fill=tk.X)
-        gauge = ttk.Progressbar(frame_main)
-        gauge.start()
-        gauge.pack(fill=tk.BOTH)
+        if show_progress_bar:
+            self.gauge = ttk.Progressbar(frame_main)
+            self.gauge.pack(fill=tk.BOTH)
+            self.gauge.start()
+        else:
+            self.gauge = None
+
         self.protocol("WM_DELETE_WINDOW", lambda: None)
 
         if not visible:
