@@ -36,7 +36,7 @@ Releases
 
 v1.4.0
 ==================
-- Added extra parameters: ``window_title``, ``window_resizable``, ``stdout_labe_prefix``, ``show_progress_bar``.
+- Added extra parameters: ``window_title``, ``window_resizable``, ``stdout_label_prefix``, ``show_progress_bar``.
 
 
 v1.3.2
