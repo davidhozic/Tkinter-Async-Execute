@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Coroutine, Optional, Callable, Union
+from typing import Coroutine, Optional, Callable, Union, Tuple
 from threading import Thread
 from concurrent.futures import Future as TFuture
 
@@ -126,7 +126,7 @@ def async_execute(
     show_stdout: bool = True,
     # Tkinter-specific parameters
     window_title: str = "Async execution window",
-    window_resizable: tuple[bool, bool] = (False, False),
+    window_resizable: Tuple[bool, bool] = (False, False),
     stdout_label_prefix: str = "Last status: ",
     show_progress_bar: bool = True,
     **kwargs

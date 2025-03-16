@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from typing import Coroutine, Callable, Optional, Union
+from typing import Coroutine, Callable, Optional, Union, Tuple
 from threading import current_thread
 from concurrent.futures import Future
 
@@ -115,7 +115,7 @@ class ExecutingAsyncWindow(tk.Toplevel):
         show_stdout: bool = True,
         # Tkinter-specific parameters
         window_title: str = "Async execution window",
-        window_resizable: tuple[bool, bool] = (True, False),
+        window_resizable: Tuple[bool, bool] = (True, False),
         stdout_label_prefix: str = "Last status: ",
         show_progress_bar: bool = True,
         **kwargs
