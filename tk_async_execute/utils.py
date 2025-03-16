@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Coroutine, Optional, Callable, Union
+from typing import Coroutine, Optional, Callable, Union, Tuple
 from threading import Thread
 from concurrent.futures import Future as TFuture
 
@@ -124,6 +124,11 @@ def async_execute(
     show_exceptions: bool = True,
     message: Optional[Union[str, Callable[[str], str]]] = lambda name: f"Executing {name}",
     show_stdout: bool = True,
+    # Tkinter-specific parameters
+    window_title: str = "Async execution window",
+    window_resizable: Tuple[bool, bool] = (False, False),
+    stdout_label_prefix: str = "Last status: ",
+    show_progress_bar: bool = True,
     **kwargs
 ):
     """
@@ -165,7 +170,22 @@ def async_execute(
         If True, any write to stdout (e.g., the ``print()`` function) will be displayed in the window when
         the execution window is shown (``visible=True``).
         Defaults to True.
-    **kwargs
+    window_title: Optional[str]
+        The title of this window. Defaults to "Async execution window".
+    window_resizable: Optional[tuple[bool, bool]]
+        Controls whether the window is resizable. The first component of this tuple represents
+        the resizable-in-width and second resizable-in-height.
+        Defaults to (False, False), meaning the window is not resizable in any direction.
+    stdout_label_prefix: Optional[str],
+        Only has an effect if the `show_stdout` parameter is set to `True`.
+        Each time a message is printed via stdout, the window will show it.
+        This parameter controls the text that is added in front of all messages.
+        Defaults to "Last status: ".
+    show_progress_bar: Opional[bool],
+        Whether to show the progress bar (gauge). Note that this is only a free-running progress bar
+        and it is meant to have a visual effect. It doesn't allow actual progress to be displayed.
+        Defaults to `True`.
+    kwargs: Any
         Any tkinter specific parameters to the TopLevel widget.
 
     Returns
@@ -178,7 +198,20 @@ def async_execute(
     Exception
         Exception that occurred in ``coro`` (if it ocurred). Only raised if ``wait`` is True.
     """
-    window = ExecutingAsyncWindow(coro, visible, pop_up, callback, show_exceptions, message, show_stdout, **kwargs)
+    window = ExecutingAsyncWindow(
+        coro,
+        visible,
+        pop_up, 
+        callback,
+        show_exceptions,
+        message,
+        show_stdout,
+        window_title,
+        window_resizable,
+        stdout_label_prefix,
+        show_progress_bar,
+        **kwargs
+    )
     if wait:
         window.wait_window()
 
